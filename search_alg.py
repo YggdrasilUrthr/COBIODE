@@ -12,12 +12,18 @@ query = list("CACCA")
 
 moving_window = []
 cumsums = []
+read_chars = 0
 
 while 1:
 
     char = data_file.read(1)
     if not char:
         break
+
+    read_chars += 1
+
+    if read_chars % 1000000 == 0:
+        print("Read " + str(read_chars))
 
     if len(moving_window) != len(query):
         moving_window.append(char)
