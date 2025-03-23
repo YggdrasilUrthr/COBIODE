@@ -1,0 +1,5 @@
+#Ignore data files
+Data/*
+
+#Ignore vscode configs file
+.vscode/

@@ -35,17 +35,18 @@ while 1:
     moving_window.append(char)
     if len(cumsums) != 3:
         cumsums.append(evaluate_score(moving_window, query) + cumsums[-1])
-        continue
-
-    cumsums.pop(0)
-    cumsums.append(evaluate_score(moving_window, query) + cumsums[-1])
+        if len(cumsums) != 3: continue
+    else:
+        cumsums.pop(0)
+        cumsums.append(evaluate_score(moving_window, query) + cumsums[-1])
 
     if cumsums[0] < cumsums[1] and cumsums[2] < cumsums[1]:
         cur_pos = data_file.tell()
         data_file.seek(-(len(query) + 1), 1)
         last_chars = data_file.read(len(query))
         last_window = [elem.encode("ascii") for elem in list(last_chars.decode("ascii"))]
-        match_file.write(str(cur_pos) + "\t" + str(cumsums[1]) + "\t" + str(last_chars) + "\t" + str(evaluate_score(last_window, query)) + "\n")
+        #match_file.write(str(cur_pos) + "\t" + str(cumsums[1]) + "\t""" + str(last_chars) + "\t" + str(evaluate_score(last_window, query)) + "\n")
+        match_file.write(str(cur_pos - 1) + "\t" + last_chars.decode("ascii") + "\t" + str(evaluate_score(last_window, query)) + "\n")
         cumsums = [cumsums[-1]]
         data_file.seek(cur_pos)
 

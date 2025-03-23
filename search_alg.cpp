@@ -28,6 +28,7 @@ int main(int argc, char ** argv) {
 
     std::string fname = "data.txt";
     std::string query = "CACCA";
+    bool only_exact = false;
 
     if(argc > 1){
         query = std::string(argv[1]);
@@ -35,6 +36,9 @@ int main(int argc, char ** argv) {
     if(argc > 2) {
         fname = std::string(argv[2]) + ".txt";
     }
+    if(argc > 3) {
+        only_exact = std::stoi(argv[3]);
+    }    
     
     std::cout << "Looking for query " + query + " in file " + fname << std::endl;
 
@@ -66,18 +70,21 @@ int main(int argc, char ** argv) {
         moving_window.push_front(in_char);
         if(cumsums.size() != 3) {
             cumsums.push_front(evaluate_score(moving_window, query) + cumsums.front());
-            continue;        
+            if(cumsums.size() != 3) continue;        
+        } else {
+            cumsums.pop_back();
+            cumsums.push_front(evaluate_score(moving_window, query) + cumsums.front());
         }
-
-        cumsums.pop_back();
-        cumsums.push_front(evaluate_score(moving_window, query) + cumsums.front());
 
         if(cumsums[0] < cumsums[1] && cumsums[2] < cumsums[1]) {        // Maximum condition
             uint32_t cur_pos = data_file.tellg();
             data_file.seekg(-(query.length() + 1), std::ios::cur);
             std::string last_chars(query.length(), 'x');
-            data_file.read(&last_chars[0], query.length()); 
-            match_file << data_file.tellg() << "\t" << cumsums[1] << "\t" + last_chars + "\t" << evaluate_score(last_chars, query) << std::endl;
+            data_file.read(&last_chars[0], query.length());
+            uint32_t match_score = evaluate_score(last_chars, query);
+            if((only_exact && match_score == 3 * query.length()) || !only_exact) {
+                match_file << data_file.tellg() << "\t" /*<< cumsums[1] << "\t"*/ + last_chars + "\t" << match_score << std::endl;
+            }
             int32_t last_sum = cumsums.front();
             cumsums.clear();
             cumsums.push_front(last_sum);
