@@ -41,7 +41,7 @@ int main(int argc, char ** argv) {
     while(data_file.good()) {
         data_file.read(&moving_window[0], query.length());
 
-        read_chars += query.length();
+        read_chars++;
         if (read_chars % 100000 == 0) {
             std::cout << "Read " + std::to_string(read_chars) << std::endl;
         }
